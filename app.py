@@ -12,8 +12,15 @@ def get_graph():
 graph = get_graph()
 
 
-# Convert Gemini response into readable text
+# Convert LLM response into readable text
 def normalize_output(value):
+
+    if value is None:
+        return ""
+
+    # Handle LangChain AIMessage objects
+    if hasattr(value, "content"):
+        value = value.content
 
     if isinstance(value, str):
         return value
@@ -23,7 +30,7 @@ def normalize_output(value):
 
         for item in value:
             if isinstance(item, dict):
-                parts.append(item.get("text", ""))
+                parts.append(item.get("text", str(item)))
             else:
                 parts.append(str(item))
 
@@ -73,9 +80,7 @@ if st.button("Analyze My Case", type="primary"):
         st.warning("Please describe your consumer dispute.")
 
     else:
-        with st.spinner(
-            "NyayaAI is analyzing your case..."
-        ):
+        with st.spinner("NyayaAI is analyzing your case..."):
 
             try:
                 initial_state = {
@@ -116,7 +121,10 @@ if "result" in st.session_state:
         result.get("legal_answer", "")
     )
 
-    st.markdown(legal_answer)
+    if legal_answer:
+        st.markdown(legal_answer)
+    else:
+        st.warning("No legal analysis was generated.")
 
     st.divider()
 
@@ -127,12 +135,14 @@ if "result" in st.session_state:
         result.get("generated_document", "")
     )
 
-    st.markdown(complaint)
+    if complaint:
+        st.markdown(complaint)
 
-    # Download complaint
-    st.download_button(
-        label="Download Complaint",
-        data=complaint,
-        file_name="NyayaAI_Consumer_Complaint.txt",
-        mime="text/plain"
-    )
+        st.download_button(
+            label="Download Complaint",
+            data=complaint,
+            file_name="NyayaAI_Consumer_Complaint.txt",
+            mime="text/plain"
+        )
+    else:
+        st.warning("No complaint document was generated.")

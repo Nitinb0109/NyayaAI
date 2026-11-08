@@ -1,38 +1,52 @@
-from workflow.graph import build_graph
+
+import time
+
+from agents.intake import intake_agent
+from agents.classifier import classifier_agent
+from agents.legal_researcher import legal_researcher_agent
+from agents.legal_advisor import legal_advisor_agent
+from agents.verifier import verifier_agent
+from agents.document_generator import document_generator_agent
 
 
-# Build LangGraph workflow
-graph = build_graph()
-
-
-# User complaint
-initial_state = {
+state = {
     "user_query": """
-    I purchased a Samsung mobile phone for Rs. 20000
-    from Amazon on 10 October 2026.
-
-    The phone arrived with a damaged screen.
-    The seller refused to provide a refund.
-
+    I purchased a Samsung Galaxy smartphone for Rs. 25000
+    from Amazon on 15 October 2026.
+    It arrived with a cracked screen.
+    The seller refused a refund or replacement.
+    I contacted Amazon customer support.
     I have the invoice and photographs.
     """
 }
 
 
-# Execute complete workflow
-result = graph.invoke(initial_state)
+def run_agent(name, agent, state):
+
+    print(f"\nRunning {name}...")
+    start = time.perf_counter()
+
+    result = agent(state)
+    state.update(result)
+
+    elapsed = time.perf_counter() - start
+
+    print(f"{name} completed in {elapsed:.2f} seconds")
+
+    return state
 
 
-print("\n========== NYAYAAI FINAL OUTPUT ==========\n")
+total_start = time.perf_counter()
 
-print("ISSUE CATEGORY:")
-print(result["issue_category"])
+run_agent("Intake", intake_agent, state)
+run_agent("Classifier", classifier_agent, state)
+run_agent("Legal Researcher", legal_researcher_agent, state)
+run_agent("Legal Advisor", legal_advisor_agent, state)
+run_agent("Verifier", verifier_agent, state)
 
-print("\nLEGAL ADVICE:")
-print(result["legal_answer"])
+# Test document generation separately
+run_agent("Document Generator", document_generator_agent, state)
 
-print("\nVERIFICATION:")
-print(result["verification_result"])
-
-print("\nGENERATED COMPLAINT:")
-print(result["generated_document"])
+print("\nTotal execution time:",
+      round(time.perf_counter() - total_start, 2),
+      "seconds")

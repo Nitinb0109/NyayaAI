@@ -1,5 +1,5 @@
 
-from backend.llm import llm
+from backend.groq_llm import groq_llm
 
 
 def legal_advisor_agent(state):
@@ -46,19 +46,27 @@ STRICT RULES:
 7. Explain everything in simple English.
 8. If the available context is insufficient, say so.
 9. Never cite a PDF page number as if it were a legal provision.
-10. Always identify the actual Rule, sub-rule, clause,
-    or Section before mentioning the PDF page number.
-11. Use this citation format:
-    Rule 5(1)(b), Consumer Protection (E-Commerce)
-    Rules, 2020 (PDF page 5).
-12. If the exact Rule or clause cannot be identified
-    from the retrieved text, write:
-    "Relevant provision identified on PDF page X;
-    exact clause requires verification."
-13. Never infer legal obligations from incomplete OCR text.
-14. Do not assume that a provision applies to every
-    e-commerce business model. Check its applicability
-    and conditions in the retrieved context.
+10. For marketplace purchases, prioritize Rule 6(3)
+    when the retrieved text supports a defective-product
+    refund or return issue.
+
+11. Do not use Rule 8(4) as a substitute for Rule 6(3).
+    Clearly distinguish marketplace and inventory
+    e-commerce entities.
+
+12. If the user says the product arrived damaged,
+    do not assume the damage was caused by the consumer.
+
+13. Preserve all user-provided facts accurately.
+    Never change the product, amount, dates, platform,
+    or sequence of events.
+
+14. Classify the dispute using the extracted facts.
+    A damaged or cracked product should be identified
+    as a defective-product dispute, not OTHER.
+
+15. Do not state that a provision guarantees a refund.
+    Explain that the consumer may seek the relevant remedy.
 FORMAT YOUR ANSWER:
 
 1. Understanding the Problem
@@ -81,7 +89,7 @@ Explain that NyayaAI provides general legal information,
 not professional legal representation.
 """
 
-    response = llm.invoke(prompt)
+    response = groq_llm.invoke(prompt)
 
     # Convert Gemini response into plain text
     content = response.content

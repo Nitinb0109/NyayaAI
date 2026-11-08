@@ -1,10 +1,9 @@
-
 streamlit
 langgraph
 langchain
 langchain-core
 langchain-community
-langchain-google-genai
+langchain-groq
 langchain-text-splitters
 langchain-huggingface
 sentence-transformers

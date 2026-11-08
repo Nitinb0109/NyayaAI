@@ -13,8 +13,14 @@ def classifier_agent(state):
         category = "COUNTERFEIT_PRODUCT"
 
     elif any(word in text for word in [
-        "damaged", "defective", "broken",
-        "faulty", "not working"
+        "damaged",
+    "damage",
+    "defective",
+    "broken",
+    "cracked",
+    "faulty",
+    "physical damage",
+    "not working"
     ]):
         category = "DEFECTIVE_PRODUCT"
 

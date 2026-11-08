@@ -1,4 +1,4 @@
-from backend.llm import llm
+from backend.groq_llm import groq_llm
 
 
 def document_generator_agent(state):
@@ -60,7 +60,7 @@ def document_generator_agent(state):
     draft and should be reviewed before submission.
     """
 
-    response = llm.invoke(prompt)
+    response = groq_llm.invoke(prompt)
 
     return {
         "generated_document": response.content
