@@ -1,5 +1,4 @@
 
-
 import os
 import hashlib
 import streamlit as st
@@ -8,28 +7,33 @@ from langchain_groq import ChatGroq
 
 load_dotenv()
 
-# Prioritize Streamlit Cloud Secrets
-try:
-    api_key = st.secrets.get("GROQ_API_KEY")
-except Exception:
-    api_key = None
+# Safely check Streamlit Cloud Secrets
+cloud_key = None
 
-# Fallback for local development
-if not api_key:
-    api_key = os.getenv("GROQ_API_KEY")
+try:
+    cloud_key = st.secrets.get("GROQ_API_KEY")
+except Exception:
+    cloud_key = None
+
+# Select the API key source
+if cloud_key:
+    api_key = cloud_key.strip()
+    source = "Streamlit Secrets"
+else:
+    api_key = (os.getenv("GROQ_API_KEY") or "").strip()
+    source = "Environment variable"
 
 if not api_key:
     raise ValueError("GROQ_API_KEY is missing")
 
-api_key = api_key.strip()
-
-# Safe diagnostic information
-print("Groq key source:",
-      "Streamlit Secrets" if st.secrets.get("GROQ_API_KEY") else "Environment variable")
+# Diagnostic information (never print the actual key)
+print("Groq key source:", source)
 print("Groq key prefix:", api_key[:4])
 print("Groq key length:", len(api_key))
-print("Groq key fingerprint:",
-      hashlib.sha256(api_key.encode()).hexdigest()[:12])
+print(
+    "Groq key fingerprint:",
+    hashlib.sha256(api_key.encode()).hexdigest()[:12]
+)
 
 groq_llm = ChatGroq(
     model="openai/gpt-oss-120b",
@@ -39,3 +43,4 @@ groq_llm = ChatGroq(
     timeout=60,
     max_retries=1
 )
+
