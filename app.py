@@ -99,6 +99,8 @@ if st.button("Analyze My Case", type="primary"):
 
 
 # Display results
+
+# Display results
 if "result" in st.session_state:
 
     result = st.session_state["result"]
@@ -107,42 +109,55 @@ if "result" in st.session_state:
 
     st.markdown("## Analysis Results")
 
-    # Issue category
-    st.markdown("### Identified Issue")
-
-    st.write(
-        result.get("issue_category", "Not identified")
+    # Out-of-scope response
+    final_response = normalize_output(
+        result.get("final_response", "")
     )
 
-    # Legal advice
-    st.markdown("### Legal Advice")
+    if result.get("issue_category") == "OUT_OF_SCOPE":
 
-    legal_answer = normalize_output(
-        result.get("legal_answer", "")
-    )
+        st.warning("This question is outside NyayaAI's scope.")
 
-    if legal_answer:
-        st.markdown(legal_answer)
+        st.markdown(final_response)
+
     else:
-        st.warning("No legal analysis was generated.")
 
-    st.divider()
+        # Issue category
+        st.markdown("### Identified Issue")
 
-    # Generated complaint
-    st.markdown("## Preliminary Consumer Complaint")
-
-    complaint = normalize_output(
-        result.get("generated_document", "")
-    )
-
-    if complaint:
-        st.markdown(complaint)
-
-        st.download_button(
-            label="Download Complaint",
-            data=complaint,
-            file_name="NyayaAI_Consumer_Complaint.txt",
-            mime="text/plain"
+        st.write(
+            result.get("issue_category", "Not identified")
         )
-    else:
-        st.warning("No complaint document was generated.")
+
+        # Legal advice
+        st.markdown("### Legal Advice")
+
+        legal_answer = normalize_output(
+            result.get("legal_answer", "")
+        )
+
+        if legal_answer:
+            st.markdown(legal_answer)
+        else:
+            st.warning("No legal analysis was generated.")
+
+        st.divider()
+
+        # Generated complaint
+        st.markdown("## Preliminary Consumer Complaint")
+
+        complaint = normalize_output(
+            result.get("generated_document", "")
+        )
+
+        if complaint:
+            st.markdown(complaint)
+
+            st.download_button(
+                label="Download Complaint",
+                data=complaint,
+                file_name="NyayaAI_Consumer_Complaint.txt",
+                mime="text/plain"
+            )
+        else:
+            st.warning("No complaint document was generated.")
